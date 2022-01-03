@@ -188,7 +188,6 @@ class Caffeine extends PanelMenu.Button {
 
         try {
             let key = SETTINGS_TOGGLE_KEYBOARD_SHORTCUT;
-            print('Key received: ', key);
             this.bindKey(key, this.toggleState.bind(this)  );
         } catch (e) {
             logError(e, "Extension Error");
@@ -233,7 +232,6 @@ class Caffeine extends PanelMenu.Button {
     }
 
     toggleState() {
-        print("Triggered toggle state", this );
         if (this._state) {
             this._apps.forEach(app_id => this.removeInhibit(app_id));
             this._manageNightLight('enabled');
@@ -398,7 +396,7 @@ class Caffeine extends PanelMenu.Button {
 
     destroy() {
 
-        //this.unbindKey(SETTINGS_TOGGLE_KEYBOARD_SHORTCUT);
+        this.unbindKey(SETTINGS_TOGGLE_KEYBOARD_SHORTCUT);
 
         // remove all inhibitors
         this._apps.forEach(app_id => this.removeInhibit(app_id));
