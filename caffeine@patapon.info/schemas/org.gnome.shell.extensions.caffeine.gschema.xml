@@ -41,5 +41,10 @@
         <summary>Pause/resume Night Light for defined applications only</summary>
         <description>Pause/resume Night Light for defined applicationa when enabled/disabled</description>
     </key>
+    <key type="as" name="keyboard-toggle-shortcut">
+        <default><![CDATA[['<Super>c']]]></default>
+        <summary>Toggle keyboard shortcut </summary>
+        <description>Keyboard shortcut to enable/disable</description>
+    </key>
   </schema>
 </schemalist>

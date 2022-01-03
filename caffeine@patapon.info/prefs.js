@@ -20,6 +20,7 @@ const FULLSCREEN_KEY = 'enable-fullscreen';
 const RESTORE_KEY = 'restore-state';
 const NIGHT_LIGHT_KEY = 'control-nightlight';
 const NIGHT_LIGHT_APP_ONLY_KEY = 'control-nightlight-for-app';
+const SETTINGS_TOGGLE_KEYBOARD_SHORTCUT = "keyboard-toggle-shortcut";
 
 const Columns = {
     APPINFO: 0,
@@ -144,6 +145,58 @@ class CaffeineWidget {
         nightlightAppBox.add(nightlightAppSwitch);
 
         this.w.add(nightlightAppBox);
+
+        
+        const keyShortcutGrid = new Gtk.Grid({
+            halign: Gtk.Align.CENTER,
+            column_spacing: 12,
+            row_spacing: 12,
+            visible: true
+        });
+
+        const keyShortcutAppLabel = new Gtk.Label({
+            halign: Gtk.Align.START,
+            visible: true,
+            label: _("Toggle Keyboard shortcut"), 
+            xalign: 0
+        });
+
+        const keyShortcutAppAct = new Gtk.Entry({
+            width_chars: 10,
+            halign: Gtk.Align.END,
+            valign: Gtk.Align.CENTER,
+            hexpand: true,
+            visible: true,
+            xalign: 0.5,
+        });
+        keyShortcutAppAct.is_entry = true;
+        keyShortcutAppAct._doNotEdit = false;
+
+        keyShortcutAppAct.connect('changed', (entry) => {
+            if (entry._doNotEdit)
+                return;
+            //entry._doNotEdit = true;
+            let text = entry.get_text();
+            let txt = '';
+            for (let i=0; i < text.length; i++) {
+                //if (/[a-zA-Z0-9]|/.test(text[i])) {
+                let char = text[i].toUpperCase();
+                if (!txt.includes(char))
+                    txt += char;
+                //}
+            }
+            entry.set_text(txt);
+            //entry._doNotEdit = false;
+            this._settings.set_strv( SETTINGS_TOGGLE_KEYBOARD_SHORTCUT, [txt] );
+        });
+        keyShortcutAppAct.set_text( this._settings.get_strv( SETTINGS_TOGGLE_KEYBOARD_SHORTCUT )[0] || "Not defined" );
+
+
+        keyShortcutGrid.attach(keyShortcutAppLabel, 0, 0, 1, 1);
+        keyShortcutGrid.attach(keyShortcutAppAct, 1, 0, 1, 1);
+
+        this.w.add(keyShortcutGrid);
+
 
         this._store = new Gtk.ListStore();
         this._store.set_column_types([Gio.AppInfo, GObject.TYPE_STRING, Gio.Icon]);

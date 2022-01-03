@@ -32,6 +32,8 @@ const MessageTray = imports.ui.messageTray;
 const Atk = imports.gi.Atk;
 const Config = imports.misc.config;
 
+const Meta = imports.gi.Meta;
+
 const INHIBIT_APPS_KEY = 'inhibit-apps';
 const SHOW_INDICATOR_KEY = 'show-indicator';
 const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
@@ -40,6 +42,8 @@ const RESTORE_KEY = 'restore-state';
 const FULLSCREEN_KEY = 'enable-fullscreen';
 const NIGHT_LIGHT_KEY = 'control-nightlight';
 const NIGHT_LIGHT_APP_ONLY_KEY = 'control-nightlight-for-app';
+
+const SETTINGS_TOGGLE_KEYBOARD_SHORTCUT= "keyboard-toggle-shortcut";
 
 const Gettext = imports.gettext.domain('gnome-shell-extension-caffeine');
 const _ = Gettext.gettext;
@@ -181,7 +185,26 @@ class Caffeine extends PanelMenu.Button {
 
         this._settings.connect(`changed::${INHIBIT_APPS_KEY}`, this._updateAppConfigs.bind(this));
         this._updateAppConfigs();
+
+        try {
+            let key = SETTINGS_TOGGLE_KEYBOARD_SHORTCUT;
+            print('Key received: ', key);
+            this.bindKey(key, this.toggleState.bind(this)  );
+        } catch (e) {
+            logError(e, "Extension Error");
+        }
     }
+
+    bindKey(key, callback) {
+        if (Main.wm.addKeybinding && key){
+            Main.wm.addKeybinding(key, this._settings, Meta.KeyBindingFlags.IGNORE_AUTOREPEAT, Shell.ActionMode.NORMAL, callback);
+        }         
+    }
+
+    unbindKey(key) {
+        Main.wm.removeKeybinding(key);
+    }
+
 
     get inFullscreen() {
         let nb_monitors = this._screen.get_n_monitors();
@@ -210,6 +233,7 @@ class Caffeine extends PanelMenu.Button {
     }
 
     toggleState() {
+        print("Triggered toggle state", this );
         if (this._state) {
             this._apps.forEach(app_id => this.removeInhibit(app_id));
             this._manageNightLight('enabled');
@@ -373,6 +397,9 @@ class Caffeine extends PanelMenu.Button {
     }
 
     destroy() {
+
+        //this.unbindKey(SETTINGS_TOGGLE_KEYBOARD_SHORTCUT);
+
         // remove all inhibitors
         this._apps.forEach(app_id => this.removeInhibit(app_id));
         // disconnect from signals
